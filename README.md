@@ -43,18 +43,34 @@ Watching an AI physically open terminal sessions, inspect broken TypeScript/Next
 
 ---
 
-## 🌐 Google ADK Web Dashboard
+## 🌐 Google ADK Web Interfaces
 
-In addition to the CLI, the project includes an interactive **Google Agent Development Kit (ADK) Web Dashboard**!
+This project is fully configured for Google Agent Development Kit (**`google-adk`**)! You can launch either interface:
 
-Run the Web Dashboard server:
+### Option 1: Official Google ADK Web UI (`adk web`)
+Run the official Google Agent Development Kit Web Server:
+
+```bash
+# Using the adk CLI command
+adk web . --port 8080
+
+# Or via python module if adk script path is not on PATH
+python -m google.adk.cli web . --port 8080
+```
+Open your browser to: **`http://localhost:8080`**
+
+---
+
+### Option 2: Custom ADK Web Dashboard (`web_app.py`)
+Run the custom glassmorphism real-time streaming dashboard:
+
 ```bash
 python web_app.py
 ```
 Open your browser to: **`http://localhost:8000`**
 
-### Web Dashboard Features:
-- 📺 **Live Terminal Stream**: Real-time WebSocket terminal log stream showing agent turns & tool executions.
+#### Web Dashboard Features:
+- 📺 **Live Terminal Stream**: Real-time WebSocket log stream showing agent turns & tool executions.
 - ⚡ **One-Click Auto Heal**: Trigger auto-detection & healing directly from the web interface.
 - 🛠️ **Live Code Patch Diff**: Visual syntax-highlighted diff display of code patches applied by the agent.
 - ⏱️ **Agent Activity Timeline**: Real-time status badge and step progress tracking.
