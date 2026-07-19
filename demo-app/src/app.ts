@@ -13,7 +13,7 @@ function processOrder(user: string, price: number) {
     const total = calculateTotal(price, 0.1);
     
     // ERROR 2: Type mismatch - passing string instead of number
-    const result = multiplyNumbers(100, 2);
+    const result = multiplyNumbers("100", 2);
     
     return { total, result };
 }
