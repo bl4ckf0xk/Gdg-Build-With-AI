@@ -84,6 +84,34 @@ def write_file_content(file_path: str, content: str) -> str:
     except Exception as e:
         return f"Error writing to file '{file_path}': {str(e)}"
 
+def replace_in_file(file_path: str, target_string: str, replacement_string: str) -> str:
+    """
+    Surgically replaces an exact target substring with a replacement substring in a file.
+    
+    Args:
+        file_path: Target file path.
+        target_string: The exact existing text to search and replace.
+        replacement_string: The new text to put in place of target_string.
+    """
+    abs_path = os.path.abspath(file_path)
+    if not os.path.isfile(abs_path):
+        return f"Error: File '{file_path}' not found."
+        
+    try:
+        with open(abs_path, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read()
+            
+        if target_string not in content:
+            return f"Error: target_string '{target_string}' not found in '{file_path}'."
+            
+        new_content = content.replace(target_string, replacement_string, 1)
+        with open(abs_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+            
+        return f"Successfully replaced '{target_string}' with '{replacement_string}' in '{file_path}'."
+    except Exception as e:
+        return f"Error replacing text in '{file_path}': {str(e)}"
+
 def find_files(working_directory: str = ".", pattern: str = "*") -> str:
     """
     Finds files in the project directory matching a glob pattern, ignoring build/dependency folders.

@@ -29,6 +29,7 @@ from tools import (
     run_build_command,
     read_file_content,
     write_file_content,
+    replace_in_file,
     find_files,
     grep_codebase
 )
@@ -45,13 +46,14 @@ AVAILABLE TOOLS:
 2. `find_files`: Searches for files by pattern or extension (e.g. '*.tsx', '*.ts', 'package.json').
 3. `grep_codebase`: Searches for symbols, variables, or error text across files.
 4. `read_file_content`: Reads line-numbered file content.
-5. `write_file_content`: Writes fixed source code back into a file.
+5. `replace_in_file`: Surgically replaces an exact target substring with a replacement string in a file (PREFERRED for bug fixes!).
+6. `write_file_content`: Overwrites complete file content.
 
 OPERATION WORKFLOW:
 1. Analyze the build error log provided or run `run_build_command` to get fresh error logs.
 2. Extract error location (filenames, line numbers, missing imports, syntax errors, type errors).
 3. Use `find_files`, `grep_codebase`, or `read_file_content` to locate and examine the problematic code.
-4. Carefully reconstruct the complete fixed code and write it using `write_file_content`.
+4. Use `replace_in_file` to surgically fix the exact code error (or `write_file_content` for large rewrites).
 5. ALWAYS execute `run_build_command` after editing code to verify if the build succeeds.
 6. If the build fails again, repeat the cycle until the build PASSED.
 7. Once the build succeeds, summarize the exact root cause and the fix applied.
@@ -69,6 +71,23 @@ def print_banner():
     banner_text.append("Self-Healing Terminal Utility for Next.js & Node.js", style="italic gray")
     console.print(Panel(banner_text, border_style="cyan", expand=False))
 
+def resolve_target_path(fpath: str, target_dir: str) -> str:
+    """Helper to resolve file path robustly regardless of whether agent used relative or absolute path."""
+    if not fpath:
+        return fpath
+    if os.path.isabs(fpath):
+        return fpath
+        
+    abs_target = os.path.abspath(target_dir)
+    norm_fpath = os.path.normpath(fpath)
+    
+    target_basename = os.path.basename(abs_target)
+    parts = norm_fpath.split(os.sep)
+    if parts and parts[0] == target_basename:
+        norm_fpath = os.sep.join(parts[1:])
+        
+    return os.path.abspath(os.path.join(abs_target, norm_fpath))
+
 def execute_tool(name: str, args: dict, target_dir: str, default_cmd: str):
     """Executes local python tools requested by Gemini and formats responses."""
     if name == "run_build_command":
@@ -83,19 +102,16 @@ def execute_tool(name: str, args: dict, target_dir: str, default_cmd: str):
         return output
 
     elif name == "read_file_content":
-        fpath = args.get("file_path", "")
-        # Resolve path relative to target_dir if relative
-        if not os.path.isabs(fpath):
-            fpath = os.path.join(target_dir, fpath)
+        raw_path = args.get("file_path", "")
+        fpath = resolve_target_path(raw_path, target_dir)
         start_line = int(args.get("start_line", 1))
         end_line = int(args.get("end_line", 500))
         console.print(f"[bold blue]📖 Reading File:[/bold blue] [cyan]{fpath}[/cyan] (Lines {start_line}-{end_line})")
         return read_file_content(file_path=fpath, start_line=start_line, end_line=end_line)
 
     elif name == "write_file_content":
-        fpath = args.get("file_path", "")
-        if not os.path.isabs(fpath):
-            fpath = os.path.join(target_dir, fpath)
+        raw_path = args.get("file_path", "")
+        fpath = resolve_target_path(raw_path, target_dir)
         content = args.get("content", "")
         
         # Read old content if exists for diff display
@@ -121,6 +137,17 @@ def execute_tool(name: str, args: dict, target_dir: str, default_cmd: str):
 
         res = write_file_content(file_path=fpath, content=content)
         console.print(f"[bold green]✔ Saved patch to {fpath}[/bold green]")
+        return res
+
+    elif name == "replace_in_file":
+        raw_path = args.get("file_path", "")
+        fpath = resolve_target_path(raw_path, target_dir)
+        target_str = args.get("target_string", "")
+        replace_str = args.get("replacement_string", "")
+        
+        console.print(Panel(f"[bold green]🛠️ Surgically Patching File:[/bold green] [yellow]{fpath}[/yellow]\nReplacing: [red]{target_str}[/red] -> [green]{replace_str}[/green]", border_style="green"))
+        res = replace_in_file(file_path=fpath, target_string=target_str, replacement_string=replace_str)
+        console.print(f"[bold green]✔ {res}[/bold green]")
         return res
 
     elif name == "find_files":
@@ -169,6 +196,7 @@ def run_healer(target_dir: str, build_cmd: str, auto_detect: bool, pasted_error:
     tools_list = [
         run_build_command,
         read_file_content,
+        replace_in_file,
         write_file_content,
         find_files,
         grep_codebase
@@ -200,11 +228,28 @@ def run_healer(target_dir: str, build_cmd: str, auto_detect: bool, pasted_error:
                 transient=True
             ) as progress:
                 progress.add_task(description=f"Gemini thinking (Turn {step})...", total=None)
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=contents,
-                    config=config
-                )
+                
+                # Retry loop for rate limits (429)
+                max_retries = 3
+                for attempt in range(max_retries):
+                    try:
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=contents,
+                            config=config
+                        )
+                        break
+                    except Exception as err:
+                        if "429" in str(err) or "RESOURCE_EXHAUSTED" in str(err):
+                            if attempt < max_retries - 1:
+                                wait_sec = 15 * (attempt + 1)
+                                console.print(f"[yellow]⚠️ Rate limit reached. Waiting {wait_sec}s before retry (Attempt {attempt+1}/{max_retries})...[/yellow]")
+                                import time
+                                time.sleep(wait_sec)
+                            else:
+                                raise err
+                        else:
+                            raise err
         except Exception as e:
             console.print(f"[bold red]API Error:[/bold red] {e}")
             break
