@@ -149,7 +149,13 @@ def web_execute_tool(name: str, args: dict, target_dir: str, default_cmd: str) -
         content = args.get("content", "")
         broadcast_log("WRITE_FILE", f"📝 Rewriting content of file '{os.path.basename(fpath)}'")
         update_agent_status("PATCHING", f"Overwriting: {os.path.basename(fpath)}")
-        return write_file_content(file_path=fpath, content=content)
+        res = write_file_content(file_path=fpath, content=content)
+        agent_state["last_diff"] = {
+            "file": os.path.basename(fpath),
+            "target": "Original broken file content",
+            "replacement": f"Patched file content ({len(content)} bytes)"
+        }
+        return res
 
     elif name == "find_files":
         wdir = args.get("working_directory", target_dir)
