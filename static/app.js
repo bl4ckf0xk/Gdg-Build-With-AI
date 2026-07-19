@@ -1,12 +1,15 @@
-// ADK Web Dashboard Client Script
+// ADK Web Dashboard Client Script - Cyberpunk Glassmorphism UI
 
 document.addEventListener("DOMContentLoaded", () => {
-    const wsStatus = document.getElementById("wsStatus");
+    const wsBadge = document.getElementById("wsBadge");
     const wsStatusText = document.getElementById("wsStatusText");
+    
+    const kpiModel = document.getElementById("kpiModel");
+    const kpiBuild = document.getElementById("kpiBuild");
+    const kpiStep = document.getElementById("kpiStep");
+    
     const terminalStream = document.getElementById("terminalStream");
     const agentStatusBadge = document.getElementById("agentStatusBadge");
-    const stepProgressText = document.getElementById("stepProgressText");
-    const stepProgressBar = document.getElementById("stepProgressBar");
     const diffContainer = document.getElementById("diffContainer");
     const activityTimeline = document.getElementById("activityTimeline");
 
@@ -30,12 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
         socket = new WebSocket(wsUrl);
 
         socket.onopen = () => {
-            wsStatus.classList.add("connected");
+            wsBadge.className = "connection-badge connected";
             wsStatusText.innerText = "Connected";
         };
 
         socket.onclose = () => {
-            wsStatus.classList.remove("connected");
+            wsBadge.className = "connection-badge disconnected";
             wsStatusText.innerText = "Reconnecting...";
             setTimeout(connectWebSocket, 3000);
         };
@@ -63,71 +66,92 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function updateDashboardState(state) {
-        // Update Agent Status Badge
-        agentStatusBadge.className = "agent-status-badge status-" + (state.status || "idle").toLowerCase();
-        agentStatusBadge.innerText = (state.status || "IDLE").replace("_", " ");
+        // Update Status Badge
+        const statusStr = (state.status || "IDLE").toUpperCase();
+        const statusClass = (state.status || "idle").toLowerCase();
+        
+        agentStatusBadge.className = `agent-status-tag status-${statusClass}`;
+        agentStatusBadge.querySelector(".tag-text").innerText = statusStr.replace("_", " ");
 
-        // Update Step Progress
+        // Update KPIs
+        kpiModel.innerText = modelSelect.options[modelSelect.selectedIndex]?.text.split(" ")[0] + " " + modelSelect.options[modelSelect.selectedIndex]?.text.split(" ")[1] || "Gemini 2.5 Pro";
+        
+        if (state.build_passed) {
+            kpiBuild.innerHTML = '<span class="text-emerald">PASSED ✔</span>';
+        } else if (state.status === "FAILED") {
+            kpiBuild.innerHTML = '<span class="text-rose">FAILED ✖</span>';
+        } else if (state.status !== "IDLE") {
+            kpiBuild.innerHTML = '<span class="text-amber">TESTING...</span>';
+        } else {
+            kpiBuild.innerHTML = '<span class="text-emerald">PASSED ✔</span>';
+        }
+
         const current = state.current_step || 0;
         const total = state.total_steps || 15;
-        stepProgressText.innerText = `${current} / ${total}`;
-        const pct = Math.min(100, Math.round((current / total) * 100));
-        stepProgressBar.style.width = `${pct}%`;
+        kpiStep.innerText = `${current} / ${total}`;
 
         // Update Code Diff if available
         if (state.last_diff) {
             renderDiff(state.last_diff);
         }
 
-        // Update Timeline
+        // Update Timeline Steps
         if (state.timeline && state.timeline.length > 0) {
             renderTimeline(state.timeline);
         }
     }
 
     function appendLogEntry(log) {
-        const entry = document.createElement("div");
-        entry.className = `log-entry ${log.type}`;
+        const line = document.createElement("div");
+        line.className = `log-line ${log.type}`;
         
         const timestamp = new Date().toLocaleTimeString();
-        entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${escapeHtml(log.message)}`;
+        line.innerHTML = `<span class="log-time">[${timestamp}]</span> ${escapeHtml(log.message)}`;
 
         if (log.meta && log.meta.output) {
             const outputBox = document.createElement("pre");
-            outputBox.style.fontSize = "0.775rem";
-            outputBox.style.opacity = "0.8";
-            outputBox.style.marginTop = "0.2rem";
+            outputBox.style.fontSize = "0.75rem";
+            outputBox.style.opacity = "0.85";
+            outputBox.style.marginTop = "0.3rem";
+            outputBox.style.padding = "0.5rem";
+            outputBox.style.background = "rgba(0,0,0,0.5)";
+            outputBox.style.borderRadius = "6px";
             outputBox.innerText = log.meta.output;
-            entry.appendChild(outputBox);
+            line.appendChild(outputBox);
         }
 
-        terminalStream.appendChild(entry);
+        terminalStream.appendChild(line);
         terminalStream.scrollTop = terminalStream.scrollHeight;
     }
 
     function renderDiff(diff) {
-        diffContainer.className = "diff-container";
+        diffContainer.className = "diff-card-active";
         diffContainer.innerHTML = `
-            <div class="diff-file-name">📄 File: ${escapeHtml(diff.file)}</div>
-            <div class="diff-line-del">- ${escapeHtml(diff.target)}</div>
-            <div class="diff-line-add">+ ${escapeHtml(diff.replacement)}</div>
+            <div class="diff-file-title">
+                <i data-lucide="file-code" style="width:16px;height:16px;"></i>
+                <span>${escapeHtml(diff.file)}</span>
+            </div>
+            <div class="diff-block-del">- ${escapeHtml(diff.target)}</div>
+            <div class="diff-block-add">+ ${escapeHtml(diff.replacement)}</div>
         `;
+        if (window.lucide) lucide.createIcons();
     }
 
     function renderTimeline(timeline) {
         activityTimeline.innerHTML = "";
-        timeline.slice(-6).forEach(item => {
+        timeline.forEach((item, idx) => {
             const li = document.createElement("li");
-            li.className = "timeline-item";
+            li.className = "step-item step-completed";
             li.innerHTML = `
-                <span class="timeline-icon">⚙️</span>
-                <div class="timeline-content">
-                    <div class="timeline-title">${escapeHtml(item.status)}</div>
-                    <div class="timeline-desc">${escapeHtml(item.info)}</div>
+                <div class="step-node"><i data-lucide="check"></i></div>
+                <div class="step-content">
+                    <span class="step-title">${escapeHtml(item.status)}</span>
+                    <span class="step-desc">${escapeHtml(item.info)}</span>
                 </div>
             `;
             activityTimeline.appendChild(li);
         });
+        if (window.lucide) lucide.createIcons();
     }
 
     function triggerHealTask(autoDetect, pastedErr = null) {
@@ -147,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
             if (data.status === "STARTED") {
-                appendLogEntry({ type: "SYSTEM", message: "🚀 Healing task initiated from Web Dashboard." });
+                appendLogEntry({ type: "SYSTEM", message: "🚀 Autonomous Healer initiated from ADK Web Dashboard." });
             } else {
                 alert("Error: " + (data.detail || "Failed to start task"));
             }
@@ -172,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     btnClearLogs.addEventListener("click", () => {
-        terminalStream.innerHTML = '<div class="log-entry system-log"><span class="timestamp">[SYSTEM]</span> Console cleared.</div>';
+        terminalStream.innerHTML = '<div class="log-line log-system"><span class="log-time">[SYSTEM]</span> Terminal logs cleared.</div>';
     });
 
     function escapeHtml(str) {

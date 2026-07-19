@@ -3,161 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ ADK Web Dashboard - Autonomous Codebase Healer</title>
-    <!-- Google Fonts -->
+    <title>⚡ Autonomous Codebase Healer | ADK Web Dashboard</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans, Inter, Fira Code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
-    <div class="app-container">
-        <!-- Top Navbar -->
-        <header class="navbar">
-            <div class="logo-group">
-                <div class="logo-icon">⚡</div>
+<body class="dark-theme">
+
+    <!-- Ambient Glowing Orbs Background -->
+    <div class="ambient-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <div class="app-layout">
+
+        <!-- Top Futuristic Header Navbar -->
+        <header class="top-header">
+            <div class="brand-group">
+                <div class="brand-icon-wrapper">
+                    <i data-lucide="zap" class="brand-icon"></i>
+                </div>
                 <div>
-                    <h1 class="logo-title">Autonomous Codebase Healer</h1>
-                    <span class="logo-subtitle">Google Agent Development Kit (ADK) Web Dashboard</span>
+                    <h1 class="brand-title">Autonomous Codebase Healer</h1>
+                    <div class="brand-subtitle">
+                        <span>Google Agent Development Kit (ADK)</span>
+                        <span class="dot-separator">•</span>
+                        <span class="text-gradient">Track: Developer Tools</span>
+                    </div>
                 </div>
             </div>
-            <div class="header-actions">
-                <div class="status-chip" id="wsStatus">
-                    <span class="status-dot"></span>
-                    <span id="wsStatusText">Connecting...</span>
+
+            <!-- Live Status KPI Counter Bar -->
+            <div class="kpi-bar">
+                <div class="kpi-card">
+                    <span class="kpi-label">Active Model</span>
+                    <span class="kpi-val text-cyan" id="kpiModel">Gemini 2.5 Pro</span>
                 </div>
-                <span class="badge badge-track">Developer Tools</span>
+                <div class="kpi-card">
+                    <span class="kpi-label">Build Status</span>
+                    <span class="kpi-val text-emerald" id="kpiBuild">PASSED ✔</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Turn Step</span>
+                    <span class="kpi-val text-violet" id="kpiStep">0 / 15</span>
+                </div>
+            </div>
+
+            <!-- Header Status Chip -->
+            <div class="header-right">
+                <div class="connection-badge" id="wsBadge">
+                    <span class="pulse-ring"></span>
+                    <span class="status-dot"></span>
+                    <span id="wsStatusText" class="status-text">Connected</span>
+                </div>
             </div>
         </header>
 
-        <!-- Main Dashboard Content -->
-        <main class="dashboard-grid">
-            
-            <!-- Sidebar / Control Panel -->
-            <section class="card control-card">
-                <div class="card-header">
-                    <h2>⚙️ Agent Configuration</h2>
+        <!-- Main 3-Column Dashboard Layout -->
+        <div class="dashboard-body">
+
+            <!-- Panel 1: Agent Controller & Settings -->
+            <aside class="panel panel-control">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i data-lucide="sliders" class="icon-cyan"></i>
+                        <h2>Agent Controller</h2>
+                    </div>
+                    <span class="panel-badge">Config</span>
                 </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="targetDir">Target Project Path</label>
-                        <input type="text" id="targetDir" value="./demo-app" placeholder="./demo-app or absolute path">
+
+                <div class="panel-content">
+                    <div class="input-card">
+                        <label for="targetDir">
+                            <i data-lucide="folder-code" class="icon-xs"></i>
+                            <span>Target Project Directory</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="text" id="targetDir" value="./demo-app" placeholder="./demo-app or absolute path">
+                            <span class="input-suffix">Path</span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="buildCmd">Build Command</label>
-                        <input type="text" id="buildCmd" value="npm run build" placeholder="npm run build, tsc, etc.">
+                    <div class="input-card">
+                        <label for="buildCmd">
+                            <i data-lucide="terminal" class="icon-xs"></i>
+                            <span>Build Verification Command</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="text" id="buildCmd" value="npm run build" placeholder="npm run build, npx tsc, etc.">
+                            <span class="input-suffix">CMD</span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="modelSelect">Gemini Model</label>
-                        <select id="modelSelect">
-                            <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash (Fast)</option>
-                            <option value="gemini-1.5-pro">Gemini 1.5 Pro (Reasoning)</option>
+                    <div class="input-card">
+                        <label for="modelSelect">
+                            <i data-lucide="cpu" class="icon-xs"></i>
+                            <span>AI Model Engine</span>
+                        </label>
+                        <select id="modelSelect" class="custom-select">
+                            <option value="gemini-2.5-pro" selected>Gemini 2.5 Pro (Deep Reasoning)</option>
+                            <option value="gemini-1.5-pro">Gemini 1.5 Pro (Heavy Codebase)</option>
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash (High Speed)</option>
+                            <option value="gemini-1.5-flash">Gemini 1.5 Flash (Standard)</option>
                         </select>
                     </div>
 
-                    <div class="action-buttons">
-                        <button id="btnAutoHeal" class="btn btn-primary">
-                            <span>⚡ Auto-Detect & Heal</span>
+                    <!-- Action Buttons -->
+                    <div class="control-actions">
+                        <button id="btnAutoHeal" class="btn-heal-glow">
+                            <i data-lucide="play" class="btn-icon"></i>
+                            <span>Auto-Detect & Heal</span>
+                            <div class="shimmer-effect"></div>
                         </button>
-                        <button id="btnTogglePaste" class="btn btn-secondary">
-                            <span>📋 Paste Error Log</span>
+
+                        <button id="btnTogglePaste" class="btn-glass">
+                            <i data-lucide="file-text"></i>
+                            <span>Paste Error Stacktrace</span>
                         </button>
                     </div>
 
-                    <!-- Collapsible Error Paste Box -->
-                    <div id="pasteSection" class="paste-section hidden">
-                        <label for="pastedError">Paste Build Error / Stack Trace</label>
-                        <textarea id="pastedError" rows="5" placeholder="Paste your terminal error message here..."></textarea>
-                        <button id="btnSubmitPaste" class="btn btn-accent margin-top-sm">
-                            <span>🚀 Heal Pasted Error</span>
+                    <!-- Collapsible Paste Box -->
+                    <div id="pasteSection" class="paste-card hidden">
+                        <label for="pastedError">Paste Stacktrace Output</label>
+                        <textarea id="pastedError" rows="4" placeholder="Paste build error output here..."></textarea>
+                        <button id="btnSubmitPaste" class="btn-violet margin-top-xs">
+                            <i data-lucide="send"></i>
+                            <span>Execute Heal on Stacktrace</span>
                         </button>
+                    </div>
+
+                    <!-- Project Info Badge Card -->
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <i data-lucide="shield-check" class="icon-emerald"></i>
+                            <span>Target App Health Check</span>
+                        </div>
+                        <p class="info-card-desc">When executed, the agent captures compiler errors, reads source files, applies surgical patches, and verifies builds in real-time.</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Panel 2: Center Live Terminal Stream -->
+            <section class="panel panel-terminal">
+                <div class="panel-header space-between">
+                    <div class="mac-window-controls">
+                        <span class="mac-dot mac-red"></span>
+                        <span class="mac-dot mac-yellow"></span>
+                        <span class="mac-dot mac-green"></span>
+                        <h2 class="terminal-heading">Live Terminal Stream & Agent Execution Logs</h2>
+                    </div>
+                    <div class="terminal-tools">
+                        <span id="agentStatusBadge" class="agent-status-tag status-idle">
+                            <span class="tag-dot"></span>
+                            <span class="tag-text">IDLE</span>
+                        </span>
+                        <button id="btnClearLogs" class="btn-icon-glass" title="Clear Terminal Logs">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="terminal-viewport">
+                    <div id="terminalStream" class="terminal-content">
+                        <div class="log-line log-system">
+                            <span class="log-time">[SYSTEM]</span>
+                            <span class="log-msg">⚡ Autonomous Codebase Healer Engine Initialized. Click "Auto-Detect & Heal" to start self-healing.</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Agent Status Banner -->
-            <section class="card status-banner-card">
-                <div class="status-banner">
-                    <div class="status-info">
-                        <span class="status-label">Current Agent Status:</span>
-                        <div id="agentStatusBadge" class="agent-status-badge status-idle">
-                            IDLE
-                        </div>
-                    </div>
-                    <div class="step-progress-group">
-                        <div class="step-progress-text">
-                            <span>Step Progress:</span>
-                            <span id="stepProgressText">0 / 15</span>
-                        </div>
-                        <div class="progress-bar-container">
-                            <div id="stepProgressBar" class="progress-bar" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <!-- Panel 3: Right Live Code Diff & Activity Timeline -->
+            <aside class="panel panel-activity">
 
-            <!-- Left Column: Terminal Output Log Stream -->
-            <section class="card terminal-card">
-                <div class="card-header space-between">
-                    <div class="title-with-dot">
-                        <span class="terminal-dot red"></span>
-                        <span class="terminal-dot yellow"></span>
-                        <span class="terminal-dot green"></span>
-                        <h2 class="margin-left-xs">Live Terminal & Agent Stream</h2>
+                <!-- Live Patch Diff Card -->
+                <div class="subpanel diff-subpanel">
+                    <div class="subpanel-header">
+                        <i data-lucide="git-compare" class="icon-violet"></i>
+                        <h2>Surgical Code Patch Diff</h2>
                     </div>
-                    <button id="btnClearLogs" class="btn-icon" title="Clear Console">🗑️</button>
-                </div>
-                <div class="card-body terminal-body">
-                    <div id="terminalStream" class="terminal-stream">
-                        <div class="log-entry system-log">
-                            <span class="timestamp">[SYSTEM]</span> Ready. Click "⚡ Auto-Detect & Heal" to start the self-healing workflow.
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Right Column: Code Patch Diff & Timeline -->
-            <section class="right-column">
-                
-                <!-- Code Patch Diff Card -->
-                <div class="card diff-card">
-                    <div class="card-header">
-                        <h2>🛠️ Live Code Patch Viewer</h2>
-                    </div>
-                    <div class="card-body">
-                        <div id="diffContainer" class="diff-container empty">
-                            <div class="diff-empty-state">
-                                <span>No code patch applied yet.</span>
-                            </div>
+                    <div class="subpanel-body">
+                        <div id="diffContainer" class="diff-view-empty">
+                            <i data-lucide="file-code" class="empty-icon"></i>
+                            <span>No code patches applied yet</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Agent Timeline Card -->
-                <div class="card timeline-card">
-                    <div class="card-header">
-                        <h2>⏱️ Agent Activity Timeline</h2>
+                <!-- Agent Activity Stepper Timeline -->
+                <div class="subpanel timeline-subpanel">
+                    <div class="subpanel-header">
+                        <i data-lucide="activity" class="icon-cyan"></i>
+                        <h2>Agent Workflow Timeline</h2>
                     </div>
-                    <div class="card-body">
-                        <ul id="activityTimeline" class="activity-timeline">
-                            <li class="timeline-item default">
-                                <span class="timeline-icon">⏳</span>
-                                <div class="timeline-content">
-                                    <div class="timeline-title">Waiting for trigger</div>
-                                    <div class="timeline-desc">Launch a task to see real-time tool execution steps.</div>
+                    <div class="subpanel-body">
+                        <ol id="activityTimeline" class="workflow-stepper">
+                            <li class="step-item step-completed">
+                                <div class="step-node"><i data-lucide="check"></i></div>
+                                <div class="step-content">
+                                    <span class="step-title">Environment Initialized</span>
+                                    <span class="step-desc">Target app: ./demo-app</span>
                                 </div>
                             </li>
-                        </ul>
+                            <li class="step-item step-pending">
+                                <div class="step-node"><i data-lucide="clock"></i></div>
+                                <div class="step-content">
+                                    <span class="step-title">Awaiting Build Error</span>
+                                    <span class="step-desc">Click button to trigger diagnosis</span>
+                                </div>
+                            </li>
+                        </ol>
                     </div>
                 </div>
 
-            </section>
+            </aside>
 
-        </main>
+        </div>
     </div>
 
     <script src="/static/app.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
 </body>
 </html>
