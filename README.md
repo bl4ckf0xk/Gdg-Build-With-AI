@@ -203,8 +203,17 @@ The Healer is built using the official **Google GenAI SDK (`google-genai`)** wit
 ```
 Gdg-Build-With-AI/
 ├── healer.py           # Main CLI Agent & Rich Terminal Visualizer
-├── tools.py            # Local Codebase & Subprocess Execution Tools
-├── requirements.txt    # Python dependencies (google-genai, rich, python-dotenv)
+├── tools.py            # Codebase Inspection & Execution Tools
+├── agent.py            # Official Google ADK Agent Definition
+├── healer_agent/       # Google ADK Agent Module Directory
+│   ├── __init__.py
+│   └── agent.py
+├── web_app.py          # FastAPI Real-time Web Dashboard Server
+├── static/             # Web Dashboard Frontend (HTML, CSS, JS)
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+├── requirements.txt    # Python dependencies (google-genai, google-adk, rich, fastapi)
 ├── .env.example        # Environment variable template for GEMINI_API_KEY
 ├── README.md           # Project Documentation & User Guide
 └── demo-app/           # Hackathon Demo Target Project
