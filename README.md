@@ -1,7 +1,7 @@
 # ⚡ Autonomous Codebase Healer
 
 > **Hackathon Track:** Developer Tools  
-> **Built With:** Python 3.10+, Google GenAI SDK (`google-genai`), Google ADK (`google-adk`), Gemini 2.5 Pro AI, FastAPI, WebSockets & Modern Cyberpunk UI
+> **Built With:** Python 3.10+, Google GenAI SDK (`google-genai`), Google ADK (`google-adk`), Gemini 3.1 AI, FastAPI, WebSockets & Modern Cyberpunk UI
 
 ---
 
@@ -104,7 +104,7 @@ GEMINI_API_KEY=your_gemini_api_key_here
 # Model Selection:
 # - gemini-2.5-pro  (Most Capable: Deep Reasoning for Complex Bugs)
 # - gemini-1.5-pro  (Highly Capable Reasoning)
-# - gemini-2.5-flash (High Speed Execution)
+# - gemini-3.1-flash-lite (High Speed Execution)
 # - gemini-1.5-flash (Standard Fast Model)
 HEALER_MODEL=gemini-2.5-pro
 ```
@@ -162,7 +162,7 @@ python healer.py --path ./my-app --cmd "npm test" --model gemini-2.5-pro
 | `--cmd "<command>"` | Terminal build command to execute & verify | `npm run build` |
 | `--auto` | Automatically run build command at startup | Enabled if no flags passed |
 | `--paste "<text>"` | Paste error message or stack trace directly | None |
-| `--model <model>` | Gemini Model ID (`gemini-2.5-pro`, `gemini-2.5-flash`, etc.) | `gemini-2.5-pro` |
+| `--model <model>` | Gemini Model ID (`gemini-2.5-pro`, `gemini-3.1-flash-lite`, etc.) | `gemini-2.5-pro` |
 
 ---
 

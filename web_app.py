@@ -301,7 +301,7 @@ class HealRequest(BaseModel):
     build_cmd: str = "npm run build"
     auto_detect: bool = True
     pasted_error: Optional[str] = None
-    model_name: str = "gemini-2.5-flash"
+    model_name: str = "gemini-3.1-flash-lite"
 
 @app.post("/api/heal")
 async def trigger_heal(req: HealRequest, background_tasks: BackgroundTasks):

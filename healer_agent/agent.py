@@ -37,7 +37,7 @@ OPERATION WORKFLOW:
 
 root_agent = Agent(
     name="healer_agent",
-    model=os.environ.get("HEALER_MODEL", "gemini-2.5-flash"),
+    model=os.environ.get("HEALER_MODEL", "gemini-3.1-flash-lite"),
     description="Self-healing terminal and web agent for Next.js & Node.js development.",
     instruction=SYSTEM_PROMPT,
     tools=[

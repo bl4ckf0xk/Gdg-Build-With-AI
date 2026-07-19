@@ -305,7 +305,7 @@ def main():
     parser.add_argument("--cmd", default="npm run build", help="Build command to execute & verify (default: 'npm run build')")
     parser.add_argument("--auto", action="store_true", help="Auto-detect build errors by running build command immediately")
     parser.add_argument("--paste", help="Paste error message/stack trace directly")
-    parser.add_argument("--model", default=os.environ.get("HEALER_MODEL", "gemini-2.5-flash"), help="Gemini Model ID")
+    parser.add_argument("--model", default=os.environ.get("HEALER_MODEL", "gemini-3.1-flash-lite"), help="Gemini Model ID")
 
     args = parser.parse_args()
 
