@@ -24,6 +24,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnSubmitPaste = document.getElementById("btnSubmitPaste");
     const btnClearLogs = document.getElementById("btnClearLogs");
 
+    function updateKpiModelText() {
+        const selectedText = modelSelect.options[modelSelect.selectedIndex]?.text || "Gemini 3.1 Flash Lite";
+        kpiModel.innerText = selectedText.split("(")[0].trim();
+    }
+    updateKpiModelText();
+
+    modelSelect.addEventListener("change", updateKpiModelText);
+
     // Establish WebSocket Connection
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/ws/logs`;
@@ -67,23 +75,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateDashboardState(state) {
         // Update Status Badge
-        const statusStr = (state.status || "IDLE").toUpperCase();
-        const statusClass = (state.status || "idle").toLowerCase();
+        const rawStatus = state.status || "IDLE";
+        const statusStr = rawStatus.toUpperCase();
+        const statusClass = rawStatus.toLowerCase();
         
         agentStatusBadge.className = `agent-status-tag status-${statusClass}`;
         agentStatusBadge.querySelector(".tag-text").innerText = statusStr.replace("_", " ");
 
+        // Enable / Disable Heal Buttons based on state
+        const isRunning = ["RUNNING_BUILD", "THINKING", "INSPECTING", "PATCHING", "INITIALIZING"].includes(rawStatus);
+        btnAutoHeal.disabled = isRunning;
+        btnSubmitPaste.disabled = isRunning;
+        btnAutoHeal.style.opacity = isRunning ? "0.6" : "1.0";
+        btnSubmitPaste.style.opacity = isRunning ? "0.6" : "1.0";
+
         // Update KPIs
-        kpiModel.innerText = modelSelect.options[modelSelect.selectedIndex]?.text.split(" ")[0] + " " + modelSelect.options[modelSelect.selectedIndex]?.text.split(" ")[1] || "Gemini 2.5 Pro";
-        
         if (state.build_passed) {
             kpiBuild.innerHTML = '<span class="text-emerald">PASSED ✔</span>';
         } else if (state.status === "FAILED") {
             kpiBuild.innerHTML = '<span class="text-rose">FAILED ✖</span>';
-        } else if (state.status !== "IDLE") {
-            kpiBuild.innerHTML = '<span class="text-amber">TESTING...</span>';
+        } else if (isRunning) {
+            kpiBuild.innerHTML = '<span class="text-amber">HEALING...</span>';
         } else {
-            kpiBuild.innerHTML = '<span class="text-emerald">PASSED ✔</span>';
+            kpiBuild.innerHTML = '<span class="text-emerald">READY</span>';
         }
 
         const current = state.current_step || 0;
@@ -139,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderTimeline(timeline) {
         activityTimeline.innerHTML = "";
-        timeline.forEach((item, idx) => {
+        timeline.forEach((item) => {
             const li = document.createElement("li");
             li.className = "step-item step-completed";
             li.innerHTML = `
@@ -171,9 +185,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
             if (data.status === "STARTED") {
-                appendLogEntry({ type: "SYSTEM", message: "🚀 Autonomous Healer initiated from ADK Web Dashboard." });
+                appendLogEntry({ type: "SYSTEM", message: `🚀 Initiated self-healing on '${payload.target_dir}' using ${payload.model_name}` });
             } else {
-                alert("Error: " + (data.detail || "Failed to start task"));
+                alert("Notice: " + (data.detail || "Agent task status updated."));
             }
         })
         .catch(err => alert("Network Error: " + err.message));
