@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from google.adk import Agent
-from google.adk.models import GeminiModel
 
 from tools import (
     run_build_command,
@@ -32,8 +31,8 @@ OPERATION WORKFLOW:
 
 # Official Google ADK Agent Instance
 root_agent = Agent(
-    name="AutonomousCodebaseHealer",
-    model=GeminiModel(model_name=os.environ.get("HEALER_MODEL", "gemini-2.5-flash")),
+    name="healer_agent",
+    model=os.environ.get("HEALER_MODEL", "gemini-2.5-flash"),
     description="Self-healing terminal and web agent for Next.js & Node.js development.",
     instruction=SYSTEM_PROMPT,
     tools=[
