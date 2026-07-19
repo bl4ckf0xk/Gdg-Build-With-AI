@@ -1,20 +1,20 @@
 # ⚡ Autonomous Codebase Healer
 
 > **Hackathon Track:** Developer Tools  
-> **Built With:** Python 3.10+, Google GenAI SDK (`google-genai`), Gemini 2.5 AI, Rich Terminal UI
+> **Built With:** Python 3.10+, Google GenAI SDK (`google-genai`), Google ADK (`google-adk`), Gemini 2.5 Pro AI, FastAPI, WebSockets & Modern Cyberpunk UI
 
 ---
 
 ## 💡 What is the Autonomous Codebase Healer?
 
-The **Autonomous Codebase Healer** is a self-healing terminal utility designed for Next.js, TypeScript, and Node.js development.
+The **Autonomous Codebase Healer** is a self-healing terminal utility and real-time Web Dashboard designed for Next.js, TypeScript, and Node.js development.
 
 When a software build fails during development or CI/CD, developers usually have to manually read stack traces, search through files, figure out broken imports/type mismatches, edit the code, and re-run `npm run build`. 
 
 The **Autonomous Codebase Healer** completely automates this loop:
 1. **Detects** build errors by physically executing terminal build commands (`npm run build` / `tsc`).
-2. **Investigates** the codebase using native directory search, grep, and file inspection tools.
-3. **Patches** broken source files using surgical string replacement or full file rewrites.
+2. **Investigates** the codebase using native directory search, grep, and line-numbered file inspection tools.
+3. **Patches** broken source files using surgical string replacement (`replace_in_file`) or complete file rewrites.
 4. **Verifies** the fix by re-executing terminal build commands in real-time until a green pass is achieved.
 
 ---
@@ -43,37 +43,35 @@ Watching an AI physically open terminal sessions, inspect broken TypeScript/Next
 
 ---
 
-## 🌐 Google ADK Web Interfaces
+## 🌐 Google ADK Web Dashboard & UI
 
-This project is fully configured for Google Agent Development Kit (**`google-adk`**)! You can launch either interface:
+This project includes an **Ultra-Modern Cyberpunk Glassmorphism Web Dashboard** as well as compatibility with official `adk web`!
 
-### Option 1: Official Google ADK Web UI (`adk web`)
-Run the official Google Agent Development Kit Web Server:
-
-```bash
-# Using the adk CLI command
-adk web . --port 8080
-
-# Or via python module if adk script path is not on PATH
-python -m google.adk.cli web . --port 8080
-```
-Open your browser to: **`http://localhost:8080`**
-
----
-
-### Option 2: Custom ADK Web Dashboard (`web_app.py`)
-Run the custom glassmorphism real-time streaming dashboard:
+### Option 1: Custom ADK Web Dashboard (Recommended)
+Launch the real-time streaming glassmorphism dashboard:
 
 ```bash
 python web_app.py
 ```
-Open your browser to: **`http://localhost:8000`**
+👉 Open your browser to: **`http://127.0.0.1:8000`**
 
 #### Web Dashboard Features:
-- 📺 **Live Terminal Stream**: Real-time WebSocket log stream showing agent turns & tool executions.
+- 📺 **Live Terminal Stream**: Real-time WebSocket terminal log stream showing agent turns & tool executions.
 - ⚡ **One-Click Auto Heal**: Trigger auto-detection & healing directly from the web interface.
-- 🛠️ **Live Code Patch Diff**: Visual syntax-highlighted diff display of code patches applied by the agent.
+- 🛠️ **Live Code Patch Diff**: Visual diff display showing target deletion lines in rose red and patch additions in emerald green.
 - ⏱️ **Agent Activity Timeline**: Real-time status badge and step progress tracking.
+- 🧠 **Pro Engine Selection**: Switch live between `Gemini 2.5 Pro`, `Gemini 1.5 Pro`, `Gemini 2.5 Flash`, and `Gemini 1.5 Flash`.
+
+---
+
+### Option 2: Official Google ADK Web UI (`adk web`)
+Run the official Google Agent Development Kit Web Server:
+
+```bash
+# Using python module syntax (works on all environments)
+python -m google.adk.cli web . --port 8080
+```
+👉 Open your browser to: **`http://127.0.0.1:8080`**
 
 ---
 
@@ -86,8 +84,8 @@ Ensure you have Python 3.10+ and Node.js installed. Install the Python dependenc
 pip install -r requirements.txt
 ```
 
-### Step 2: Configure Gemini API Key
-Get a free Gemini API Key from [Google AI Studio](https://aistudio.google.com/).
+### Step 2: Configure Gemini API Key & Model
+Get a free Gemini API Key from [Google AI Studio](https://aistudio.google.com/app/apikey).
 
 Create a `.env` file in the root directory (or copy `.env.example`):
 
@@ -99,19 +97,16 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-Open `.env` and add your API Key:
+Open `.env` and configure your key and preferred model engine:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
-HEALER_MODEL=gemini-2.5-flash
-```
 
-Or export it directly in your terminal:
-```bash
-# Windows PowerShell
-$env:GEMINI_API_KEY="your_api_key_here"
-
-# macOS / Linux
-export GEMINI_API_KEY="your_api_key_here"
+# Model Selection:
+# - gemini-2.5-pro  (Most Capable: Deep Reasoning for Complex Bugs)
+# - gemini-1.5-pro  (Highly Capable Reasoning)
+# - gemini-2.5-flash (High Speed Execution)
+# - gemini-1.5-flash (Standard Fast Model)
+HEALER_MODEL=gemini-2.5-pro
 ```
 
 ---
@@ -120,7 +115,7 @@ export GEMINI_API_KEY="your_api_key_here"
 
 This repository includes a ready-to-test sample project inside `./demo-app` with intentional TypeScript build errors.
 
-Run the Healer in **auto-detect mode**:
+Run the Healer CLI in **auto-detect mode**:
 
 ```bash
 python healer.py --path ./demo-app --auto
@@ -151,10 +146,10 @@ Paste an error stack trace directly into the terminal prompt:
 python healer.py --path /path/to/your/project --paste "Type error: Property 'user' does not exist on type 'Props'"
 ```
 
-### 3. Custom Build Commands
+### 3. Custom Build Commands & Pro Models
 Specify custom build scripts such as `npm test`, `npx tsc`, or `yarn build`:
 ```bash
-python healer.py --path ./my-app --cmd "npm test"
+python healer.py --path ./my-app --cmd "npm test" --model gemini-2.5-pro
 ```
 
 ---
@@ -167,13 +162,13 @@ python healer.py --path ./my-app --cmd "npm test"
 | `--cmd "<command>"` | Terminal build command to execute & verify | `npm run build` |
 | `--auto` | Automatically run build command at startup | Enabled if no flags passed |
 | `--paste "<text>"` | Paste error message or stack trace directly | None |
-| `--model <model>` | Gemini Model ID | `gemini-2.5-flash` |
+| `--model <model>` | Gemini Model ID (`gemini-2.5-pro`, `gemini-2.5-flash`, etc.) | `gemini-2.5-pro` |
 
 ---
 
 ## 🛠️ Architecture & Tools
 
-The Healer is built using the official **Google GenAI SDK (`google-genai`)** with native function calling.
+The Healer is built using the official **Google GenAI SDK (`google-genai`)** and **Google ADK (`google-adk`)** with native function calling.
 
 ```
 ┌─────────────────────────┐       ┌──────────────────────┐       ┌────────────────────────┐
