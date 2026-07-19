@@ -1,0 +1,12 @@
+{
+  "name": "demo-nextjs-app",
+  "version": "1.0.0",
+  "description": "Hackathon Demo App for Autonomous Codebase Healer",
+  "main": "src/app.ts",
+  "scripts": {
+    "build": "npx -y typescript --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
