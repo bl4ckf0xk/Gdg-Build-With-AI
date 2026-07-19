@@ -102,11 +102,11 @@ Open `.env` and configure your key and preferred model engine:
 GEMINI_API_KEY=your_gemini_api_key_here
 
 # Model Selection:
-# - gemini-2.5-pro  (Most Capable: Deep Reasoning for Complex Bugs)
-# - gemini-1.5-pro  (Highly Capable Reasoning)
-# - gemini-3.1-flash-lite (High Speed Execution)
-# - gemini-1.5-flash (Standard Fast Model)
-HEALER_MODEL=gemini-2.5-pro
+# - gemini-3.1-flash-lite (Fast & Lite - Recommended)
+# - gemini-2.5-pro        (Most Capable: Deep Reasoning for Complex Bugs)
+# - gemini-1.5-pro        (Highly Capable Reasoning)
+# - gemini-1.5-flash      (Standard Fast Model)
+HEALER_MODEL=gemini-3.1-flash-lite
 ```
 
 ---
@@ -162,7 +162,7 @@ python healer.py --path ./my-app --cmd "npm test" --model gemini-2.5-pro
 | `--cmd "<command>"` | Terminal build command to execute & verify | `npm run build` |
 | `--auto` | Automatically run build command at startup | Enabled if no flags passed |
 | `--paste "<text>"` | Paste error message or stack trace directly | None |
-| `--model <model>` | Gemini Model ID (`gemini-2.5-pro`, `gemini-3.1-flash-lite`, etc.) | `gemini-2.5-pro` |
+| `--model <model>` | Gemini Model ID (`gemini-3.1-flash-lite`, `gemini-2.5-pro`, etc.) | `gemini-3.1-flash-lite` |
 
 ---
 
